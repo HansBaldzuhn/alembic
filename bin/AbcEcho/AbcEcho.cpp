@@ -48,6 +48,20 @@ using namespace ::Alembic::AbcGeom;
 
 static const std::string g_sep( ";" );
 
+std::string scopeToString( Alembic::AbcGeom::GeometryScope input )
+{
+	switch(input)
+	{
+		case Alembic::AbcGeom::kConstantScope: return "kConstantScope";
+		case Alembic::AbcGeom::kFacevaryingScope:return "kFacevaryingScope";
+		case Alembic::AbcGeom::kUniformScope: return "kUniformScope";
+		case Alembic::AbcGeom::kUnknownScope: return "kUnknownScope";
+		case Alembic::AbcGeom::kVaryingScope: return "kVaryingScope";
+		case Alembic::AbcGeom::kVertexScope: return "kVertexScope";
+	}
+	return "kUnknownScope";
+}
+
 //-*****************************************************************************
 // FORWARD
 void visitProperties( ICompoundProperty, std::string & );
@@ -78,7 +92,7 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
     mdstring += iProp.getMetaData().get( "interpretation" );
 
     std::string scopestring = "scope=";
-    scopestring += GetGeometryScope(iProp.getMetaData());
+    scopestring += scopeToString(GetGeometryScope(iProp.getMetaData()));
 
     std::stringstream dtype;
     dtype << "datatype=";
@@ -90,7 +104,7 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
 
     mdstring += g_sep;
 
-    mdstring += scopestring.str();
+    mdstring += scopestring;
 
     mdstring += g_sep;
 
