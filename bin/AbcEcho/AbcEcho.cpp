@@ -77,6 +77,9 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
     std::string mdstring = "interpretation=";
     mdstring += iProp.getMetaData().get( "interpretation" );
 
+    std::string scopestring = "scope=";
+    scopestring += GetGeometryScope(iProp.getMetaData());
+
     std::stringstream dtype;
     dtype << "datatype=";
     dtype << iProp.getDataType();
@@ -87,12 +90,18 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
 
     mdstring += g_sep;
 
+    mdstring += scopestring.str();
+
+    mdstring += g_sep;
+
     mdstring += dtype.str();
+
+    mdstring += g_sep;
 
     mdstring += asizestr.str();
 
     std::cout << iIndent << "  " << ptype << "name=" << iProp.getName()
-              << g_sep << mdstring << g_sep << "numsamps="
+              << g_sep << mdstring << g_sep  << "numsamps="
               << iProp.getNumSamples() << std::endl;
 }
 
