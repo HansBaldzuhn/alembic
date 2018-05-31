@@ -91,8 +91,13 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
     std::string mdstring = "interpretation=";
     mdstring += iProp.getMetaData().get( "interpretation" );
 
-    std::string scopestring = "scope=";
-    scopestring += scopeToString(GetGeometryScope(iProp.getMetaData()));
+    std::string scopestring = "";
+
+    if ( iProp.getMetaData().get("geoScope") != "" )
+    {
+		scopestring += "scope=";
+		scopestring += scopeToString(GetGeometryScope(iProp.getMetaData()));
+    }
 
     std::stringstream dtype;
     dtype << "datatype=";
