@@ -50,16 +50,16 @@ static const std::string g_sep( ";" );
 
 std::string scopeToString( Alembic::AbcGeom::GeometryScope input )
 {
-	switch(input)
-	{
-		case Alembic::AbcGeom::kConstantScope: return "kConstantScope";
-		case Alembic::AbcGeom::kFacevaryingScope:return "kFacevaryingScope";
-		case Alembic::AbcGeom::kUniformScope: return "kUniformScope";
-		case Alembic::AbcGeom::kUnknownScope: return "kUnknownScope";
-		case Alembic::AbcGeom::kVaryingScope: return "kVaryingScope";
-		case Alembic::AbcGeom::kVertexScope: return "kVertexScope";
-	}
-	return "kUnknownScope";
+    switch(input)
+    {
+        case Alembic::AbcGeom::kConstantScope: return "kConstantScope";
+        case Alembic::AbcGeom::kFacevaryingScope:return "kFacevaryingScope";
+        case Alembic::AbcGeom::kUniformScope: return "kUniformScope";
+        case Alembic::AbcGeom::kUnknownScope: return "kUnknownScope";
+        case Alembic::AbcGeom::kVaryingScope: return "kVaryingScope";
+        case Alembic::AbcGeom::kVertexScope: return "kVertexScope";
+    }
+    return "kUnknownScope";
 }
 
 //-*****************************************************************************
@@ -74,6 +74,7 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
     size_t asize = 0;
     size_t minSize = ULONG_MAX;
     size_t maxSize = 0;
+    bool constantSize = false;
 
 
     AbcA::ArraySamplePtr samp;
@@ -83,20 +84,22 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
         iProp.get( samp, ISampleSelector( i ) );
         asize = samp->size();
         if (minSize > asize)
-        	minSize = asize;
+            minSize = asize;
         if (maxSize < asize)
-        	maxSize = asize;
+            maxSize = asize;
     };
 
     std::string mdstring = "interpretation=";
     mdstring += iProp.getMetaData().get( "interpretation" );
 
-    std::string scopestring = "";
-
+    std::string scopestring = "scope=";
     if ( iProp.getMetaData().get("geoScope") != "" )
     {
-		scopestring += "scope=";
-		scopestring += scopeToString(GetGeometryScope(iProp.getMetaData()));
+        scopestring += scopeToString(GetGeometryScope(iProp.getMetaData()));
+    }
+    else
+    {
+        scopestring += "kUnknownScope";
     }
 
     std::stringstream dtype;
@@ -105,7 +108,10 @@ void visitSimpleArrayProperty( PROP iProp, const std::string &iIndent )
 
     std::stringstream asizestr;
     asizestr << ";arraysize=";
-    asizestr << minSize << "/" << maxSize;
+    if ( minSize == maxSize)
+        asizestr << asize;
+    else
+        asizestr << minSize << "/" << maxSize;
 
     mdstring += g_sep;
 
@@ -130,6 +136,8 @@ void visitSimpleScalarProperty( PROP iProp, const std::string &iIndent )
 {
     std::string ptype = "ScalarProperty ";
     size_t asize = 0;
+    size_t minSize = ULONG_MAX;
+    size_t maxSize = 0;
 
     const AbcA::DataType &dt = iProp.getDataType();
     const Alembic::Util ::uint8_t extent = dt.getExtent();
@@ -142,6 +150,10 @@ void visitSimpleScalarProperty( PROP iProp, const std::string &iIndent )
         iProp.get( const_cast<void*>( samp->getData() ),
                                       ISampleSelector( i ) );
         asize = samp->size();
+        if (minSize > asize)
+            minSize = asize;
+        if (maxSize < asize)
+            maxSize = asize;
     };
 
     std::string mdstring = "interpretation=";
@@ -153,7 +165,10 @@ void visitSimpleScalarProperty( PROP iProp, const std::string &iIndent )
 
     std::stringstream asizestr;
     asizestr << ";arraysize=";
-    asizestr << asize;
+    if ( minSize == maxSize)
+        asizestr << asize;
+    else
+        asizestr << minSize << "/" << maxSize;
 
     mdstring += g_sep;
 
